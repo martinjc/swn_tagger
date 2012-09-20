@@ -44,9 +44,13 @@ Thumbs.db
 .LSOverride
 Icon
 
+# specific files 
+#no need to sync lastpy, is available elsewhere
 lastpy
-
+# store lineup in csv files
 *.csv
+# credentials for last.fm access
+_credentials.py
 
 # Thumbnails
 ._*
