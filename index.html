@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/styles.css" media="all">
+    <title></title>
+</head>
+    <body>
+
+        <div class="container-fluid">
+            <div class="well">
+                <h1>SWN Artist Explorer</h1>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span4">
+                    <div class="tabbable">
+                        <ul id="day_nav" class="nav nav-tabs">
+                            <li class="active"><a href="#thurs" id="thurs_nav" data-toggle="tab">Thursday</a></li>
+                            <li><a href="#fri" id="fri_nav" data-toggle="tab">Friday</a></li>
+                            <li><a href="#sat" id="sat_nav" data-toggle="tab">Saturday</a></li>
+                            <li><a href="#sun" id="sun_nav" data-toggle="tab">Sunday</a></li>
+                        </ul>
+                    </div>
+                    <div id="band_list" class="tab-content">
+                        <div id="thurs" class="tab-pane active">
+                            <ul class="unstyled"></ul>
+                        </div>
+                        <div id="fri" class="tab-pane">
+                            <ul class="unstyled"></ul>
+                        </div>
+                        <div id="sat" class="tab-pane">
+                            <ul class="unstyled"></ul>
+                        </div>
+                        <div id="sun" class="tab-pane">
+                            <ul class="unstyled"></ul>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="holder" class="span8">
+                    <div id="vis">
+
+                    </div>
+                    <div class="well">
+                        Here's where extra information will go.
+                    </div>
+            </div>
+        </div>
+
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="http://d3js.org/d3.v2.min.js"></script>
+        <script src="js/d3.layout.cloud.js"></script>
+        <script src="js/cloud.js"></script>
+        <script src="js/artists.js"></script>
+        <script>
+            $(document).ready(function() {
+                var band_data;
+
+                function gettags(band) {
+                    for(var i in band_data){
+                        var bands = band_data[i].bands;
+                        for(var j in bands) {
+                            if(bands[j].artist_name === band) {
+                                return bands[j].tags;
+                            }
+                        }
+                    }
+                    return undefined;
+                }
+
+                function select_band(band, band_tags) {
+                    parseText(band_tags);
+                }
+
+                $.getJSON('data/bands.json', function(data){
+                    band_data = data;
+                    for(var i in band_data) {
+                        var day = band_data[i].day;
+                        var bands = band_data[i].bands;
+                        for(var j in bands) {
+                            $('#' + day + ' > ul').append('<li id=' + bands[j].artist_name + '>'+ bands[j].artist +'</li>')
+                            if(!($.isEmptyObject(bands[j].tags))) {
+                                $('#' + bands[j].artist_name).addClass('clickable');
+                                (function(b) {
+                                    $('#' + bands[j].artist_name).on('click', function() { parseText(b.tags); });
+                                })(bands[j]);
+                            }
+                        }
+                    }
+                    //$('#band_list li').on('click', function(data){
+                    //    console.log('clicked: ' + this.id);
+                    //    var artist_tags = gettags(this.id);
+                    //    if(artist_tags !== undefined && !($.isEmptyObject(artist_tags))) {
+                    //        parseText(artist_tags);
+                    //    } else {
+                    //        //error message
+                    //    }
+                    //
+                    //});
+                });
+            });
+        </script>
+
+    </body>
+</html>

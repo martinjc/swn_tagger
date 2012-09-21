@@ -1,0 +1,12 @@
+#vis text { cursor: pointer; }
+#vis text:hover { opacity: .7 !important; }
+
+.selected {
+    background: #fff;
+}
+
+.clickable {
+    cursor: pointer;
+    color: #333;
+    background: #333;
+}
