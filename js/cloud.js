@@ -1,7 +1,8 @@
+
 var fill = d3.scale.category20b();
 
-var w = 600,
-    h = 400;
+var w = 800,
+    h = 750;
 
 var words = [],
     max = 250,
@@ -75,9 +76,7 @@ function draw(data, bounds) {
       .attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
       .style("font-size", function(d) { return d.size + "px"; })
       .on("click", function(d) {
-        console.log(d + ' clicked');
-        // here's where to do cleverer stuff with the cloud
-        // click text here
+        show_similar(d.text);
       })
       .style("opacity", 1e-6).transition().duration(1000).style("opacity", 1); // fade the wordle in nicely
   text.style("font-family", function(d) { return d.font; })

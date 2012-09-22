@@ -1,12 +1,27 @@
+
 #vis text { cursor: pointer; }
 #vis text:hover { opacity: .7 !important; }
 
 .selected {
-    background: #fff;
+    font-style: italic;
+}
+
+h1 {
+    color: #ed217c;
 }
 
 .clickable {
     cursor: pointer;
-    color: #333;
-    background: #333;
+    color: #ed217c;
+    background: #fffafa;
+}
+
+#band_list {
+    margin-left: 15px;
+    margin-rigth: 10px;
+}
+
+#band_list li {
+    padding: 1px;
+    padding-left: 4px;
 }
