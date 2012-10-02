@@ -2,11 +2,21 @@
 #vis text { cursor: pointer; }
 #vis text:hover { opacity: .7 !important; }
 
-.selected {
-    font-style: italic;
+a.close {
+    color: #ed217c;
 }
 
-h1 {
+.selected {
+    font-style: italic;
+    font-weight: bold;
+    font-size: 150%;
+}
+
+h1, h2, h3, h4 {
+    color: #ed217c;
+}
+
+.hero-unit h1 {
     color: #ed217c;
 }
 

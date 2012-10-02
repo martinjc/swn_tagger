@@ -7,21 +7,25 @@
     <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/styles.css" media="all">
     <title>SWN Artist Browser</title>
-
-    <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 </head>
     <body>
 
         <div class="container-fluid">
-            <div class="well">
+            <div class="hero-unit">
                 <h1>SWN Artist Explorer</h1>
+                <p>Click an artist name below to see the cloud of Last.FM tags for that artist. Select a tag in the cloud to see all other artists playing at <a href="http://www.swnfest.com">SWN Festival 2012</a> who also have that tag. Not happy with the tags? Head to <a href="http://www.last.fm">Last.FM</a> and fix them up!</p>
             </div>
         </div>
 
         <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span4">
-                    <div id="band_list" style="height: 750px; overflow:auto;">
+                    <div id="band_list" style="height: 600px; overflow:auto;">
+                        <div class="accordion-group hide" id="tag-info" style="overflow: auto;">
+                            <header class="accordion-heading">
+                                <h3 style="margin-left: 5px;">Tag Selected: <span id="selected-tag"></span><a class="pull-right" id="remove-tag" href="#" style="margin-right: 5px;"><small>(remove tag)</small></a></h3>
+                            </header>
+                        </div>
                         <div id="days_accordion" class="accordion">
                             <div class="accordion-group">
                                 <header class="accordion-heading">
@@ -57,7 +61,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div id="holder" class="span8">
                     <div id="vis"></div>
@@ -66,87 +69,42 @@
         </div>
 
         <footer class="container-fluid">
-                <small>hacked together by <a href="https://twitter.com/intent/user?screen_name=martinjc">@martinjc</a> on a mildly boring saturday in September</small>
+                <small>hacked together by <a href="https://twitter.com/intent/user?screen_name=martinjc">@martinjc</a> on a wet sunday in September - <a href="#modal-about" data-toggle="modal">more info?</a></small>
         </footer>
 
-
+        <aside id="modal-about" class="modal hide fade">
+            <h2 class="modal-header">About<a href="#" class="close" data-dismiss="modal" >&times;</a></h2>
+            <div class="modal-body">
+                <h4>What?</h4>
+                <p>This site visualises the <a href="http://www.last.fm">last.fm</a> tags for bands that are playing <a href="http://www.swnfest.com">SWN Festival</a> in 2012. The idea is that you can see how bands have been tagged and then see which other artists share those tags. Not all the bands playing have tags on Last.FM, so can't be selected and won't show up when you choose a tag.</p>
+                <h4>Why?</h4>
+                <p>Created as an attempt to help make the decisions on which band to see at SWN easier.</p>
+                <h4>How?</h4>
+                <p>The tag clouds use Jason Davies's excellent D3 <a href="https://github.com/jasondavies/d3-cloud">word cloud plugin</a>. Most of the .js for creating the clouds was modified from his <a href="http://www.jasondavies.com/wordcloud/">example</a>. The rest of the code was poorly hacked together by me, it's basically just <a href="http://twitter.github.com/bootstrap/">bootstrap</a> for styling and a sprinkling of <a href="http://jquery.com/">jquery</a> for the band list interaction. If I had time, I'd improve it, but I don't so probably won't.</p>
+                <h4>When?</h4>
+                <p>Put together over a couple of hours on the 22nd and 23rd September 2012 while I was avoiding other work</p>
+                <h4>Who?</h4>
+                <p>Created by <a href="https://twitter.com/intent/user?screen_name=martinjc">@martinjc</a></p>
+                <h4>Where?</h4>
+                <p>Cardiff of course, 18th - 22nd October 2012. Come on down, it'll be ace like when you're ten.</p>
+            </div>
+        </aside>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="http://d3js.org/d3.v2.min.js"></script>
         <script src="js/d3.layout.cloud.js"></script>
-        <script src="js/cloud.js"></script>
-        <script>
-            var band_data;
+        <script src="js/cloud-ck.js"></script>
+        <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+        <script type="text/javascript">
+              var _gaq = _gaq || [];
+              _gaq.push(['_setAccount', 'UA-35081787-1']);
+              _gaq.push(['_trackPageview']);
 
-            var selected_artist;
-
-            var selected_day;
-
-            function show_info(name) {
-                $('.accordion-inner > ul > li').show(400);
-                $('.selected').removeClass('selected');
-                $('#' + name).addClass('selected');
-            }
-
-            function show_similar(tag) {
-                $('.accordion-inner > ul > li').show(400);
-                selected_day = $('.collapse.in').attr('id');
-                $('.collapse').collapse('show');
-                for(var i in band_data) {
-                    var bands = band_data[i].bands;
-                    for(var j in bands) {
-                        var band_tags = Object.keys(bands[j].tags);
-                        var has_tag = false;
-                        for(var k in band_tags) {
-                            if(band_tags[k] === tag) {
-                                has_tag = true;
-                            }
-                        }
-                        if(!has_tag) {
-                            $('#' + bands[j].artist_name).hide(400);
-                        }
-                    }
-                }
-            }
-
-            $(document).ready(function() {
-
-                $('#collapseSat').collapse('show');
-
-                w = $('#vis').width();
-                h = $('#vis').height();
-
-                function select_band(band, band_tags) {
-                    parseText(band_tags);
-                }
-
-                $.getJSON('data/bands.json', function(data){
-                    band_data = data;
-                    for(var i in band_data) {
-                        var day = band_data[i].day;
-                        var bands = band_data[i].bands;
-                        for(var j in bands) {
-                            $('#' + day + ' > ul').append('<li id="' + bands[j].artist_name + '">'+ bands[j].artist +'</li>')
-                            if(!($.isEmptyObject(bands[j].tags))) {
-                                $('#' + bands[j].artist_name).addClass('clickable');
-                                (function(b) {
-                                    $('#' + bands[j].artist_name).on('click', function() {
-                                        selected_artist = b.artist_name;
-                                        show_info(b.artist_name);
-                                        parseText(b.tags);
-                                    });
-                                })(bands[j]);
-                            }
-                        }
-                    }
-                });
-
-                $(window).resize(function() {
-                    w = $('#vis').width();
-                    h = $('#vis').height();
-                    generate();
-                });
-            });
+              (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+              })();
         </script>
 
     </body>

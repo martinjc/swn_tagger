@@ -2,7 +2,7 @@
 var fill = d3.scale.category20b();
 
 var w = 800,
-    h = 750;
+    h = 600;
 
 var words = [],
     max = 250,
@@ -125,3 +125,79 @@ function downloadSVG() {
        .attr("xmlns", "http://www.w3.org/2000/svg")
      .node().parentNode.innerHTML))));
 }
+
+var band_data;
+
+$('#remove-tag').on('click', function() {
+    reset();
+});
+
+function reset() {
+    $('#selected-tag').html('');
+    $('#tag-info').slideUp(1000);
+    $('.accordion-inner > ul > li').show(1000);
+}
+
+function show_info(name, artist_name) {
+    $('#selected-tag').html('');
+    $('#tag-info').slideUp(500);
+    $('.accordion-inner > ul > li').show(1000);
+    $('.selected').removeClass('selected');
+    $('#' + name).addClass('selected');
+}
+
+function show_similar(tag) {
+    $('#tag-info').slideDown(1000);
+    $('#selected-tag').html(tag);
+    $('.accordion-inner > ul > li').show(1000);
+    $('.collapse').collapse('show');
+    for(var i in band_data) {
+        var bands = band_data[i].bands;
+        for(var j in bands) {
+            var band_tags = Object.keys(bands[j].tags);
+            var has_tag = false;
+            for(var k in band_tags) {
+                if(band_tags[k] === tag) {
+                    has_tag = true;
+                }
+            }
+            if(!has_tag) {
+                $('#' + bands[j].artist_name).hide(800);
+            }
+        }
+    }
+}
+
+$(document).ready(function() {
+
+    $('#collapseSat').collapse('show');
+
+    w = $('#vis').width();
+    h = $('#vis').height();
+
+    $.getJSON('data/bands.json', function(data){
+        band_data = data;
+        for(var i in band_data) {
+            var day = band_data[i].day;
+            var bands = band_data[i].bands;
+            for(var j in bands) {
+                $('#' + day + ' > ul').append('<li id="' + bands[j].artist_name + '">'+ bands[j].artist +'</li>')
+                if(!($.isEmptyObject(bands[j].tags))) {
+                    $('#' + bands[j].artist_name).addClass('clickable');
+                    (function(b) {
+                        $('#' + bands[j].artist_name).on('click', function() {
+                            show_info(b.artist_name, b.artist);
+                            parseText(b.tags);
+                        });
+                    })(bands[j]);
+                }
+            }
+        }
+    });
+
+    $(window).resize(function() {
+        w = $('#vis').width();
+        h = $('#vis').height();
+        generate();
+    });
+});
